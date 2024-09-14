@@ -12,7 +12,7 @@ setup(
     url='https://github.com/fuchs-fabian/simbashlog-notify-helper-py',
     keywords=['simbashlog', 'notify', 'helper', 'log'],
     platforms=['Linux'],
-    pyhton_requires='>=3.6',
+    python_requires='>=3.6',
     install_requires=[
         'pandas',
     ],
