@@ -163,6 +163,44 @@ class Severity(Enum):
     @property
     def unicode(self):
         return self._unicode
+    
+    @classmethod
+    def get_by_code(cls, code: int) -> 'Severity':
+        '''
+        Returns the severity level based on the numerical code.
+
+        Args:
+            code (int): The numerical code of the severity level.
+
+        Returns:
+            Severity: The severity level.
+
+        Raises:
+            ValueError: If no matching severity level is found for the given code.
+        '''
+        for severity in cls:
+            if severity.rfc_5424_numerical_code == code:
+                return severity
+        raise ValueError(f"No matching severity found for code '{code}'")
+
+    @classmethod
+    def get_by_name(cls, name: str) -> 'Severity':
+        '''
+        Returns the severity level based on the name.
+
+        Args:
+            name (str): The name of the severity level.
+
+        Returns:
+            Severity: The severity level.
+
+        Raises:
+            ValueError: If no matching severity level is found for the given name.
+        '''
+        for severity in cls:
+            if severity.name == name:
+                return severity
+        raise ValueError(f"No matching severity found for name '{name}'")
 
     def __str__(self):
         return f"'{self.name}' (RFC 5424 Numerical Code: '{self.rfc_5424_numerical_code}', RFC 5424 Severity: '{self.rfc_5424_severity}', RFC 5424 Description: '{self.rfc_5424_description}', Emoji: '{self.emoji}', Unicode: '{self.unicode}')"
