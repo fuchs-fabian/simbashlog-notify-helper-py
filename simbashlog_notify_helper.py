@@ -232,7 +232,7 @@ class LogField(Enum):
         return self.value
 
 class StoredLogInfo:
-    """
+    '''
     A class to store and manage information related to `simbashlog` log processing.
 
     Attributes:
@@ -250,7 +250,7 @@ class StoredLogInfo:
             The DataFrame containing the loaded data from log or JSON log file.
         summary_df (Optional[pd.DataFrame]):
             The DataFrame containing the summary information from log or JSON log file.
-    """
+    '''
 
     def __init__(self):
         self.pid: Optional[int] = None
@@ -317,13 +317,13 @@ class StoredLogInfo:
                 logs = []
                 summaries = []
 
-                for pid in log_data.get("pids", []):
-                    for log in log_data[pid]["logs"]:
+                for pid in log_data.get('pids', []):
+                    for log in log_data[pid]['logs']:
                         log[LogField.PID.value] = pid
                         log[LogField.TIMESTAMP.value] = datetime.fromtimestamp(log[LogField.TIMESTAMP.value])
                         logs.append(log)
 
-                    summary = log_data[pid]["summary"]
+                    summary = log_data[pid]['summary']
                     summary_dict = {LogField.PID.value: pid}
                     for severity in Severity:
                         summary_dict[severity.name] = summary.get(severity.name, 0)
@@ -389,7 +389,7 @@ class StoredLogInfo:
                 f"Summary Data:\n{df_for_summary_data if df_for_summary_data else 'No summary data available'}")
 
 def get_config_data(path: str, enum_class_for_config_fields: Type[Enum]) -> dict:
-    """
+    '''
     Retrieves the configuration data from a specified path.
 
     Args:
@@ -409,7 +409,7 @@ def get_config_data(path: str, enum_class_for_config_fields: Type[Enum]) -> dict
         >>>    API_KEY = 'api_key'
         ...
         >>> config_data = get_config_data('~/config.json', ConfigField)
-    """
+    '''
     config_path = os.path.expanduser(path)
     
     if not os.path.exists(config_path):
@@ -425,14 +425,14 @@ def get_config_data(path: str, enum_class_for_config_fields: Type[Enum]) -> dict
     return config_data
 
 def process_arguments() -> StoredLogInfo:
-    """
+    '''
     Processes the command-line arguments for a `simbashlog`-notifier.
 
     Officially supported `simbashlog`-notifier: https://github.com/fuchs-fabian/simbashlog-notifiers
 
     Returns:
         StoredLogInfo: Contains all important information transmitted by `simbashlog`.
-    """
+    '''
 
     parser = argparse.ArgumentParser(description="Notifier for simbashlog.")
 
