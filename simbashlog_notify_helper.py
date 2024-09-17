@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 
 import argparse
+import os
 import re
 import json
 import pandas as pd # type: ignore
 from datetime import datetime
 from enum import Enum
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Type
 
 class Severity(Enum):
     '''
@@ -348,6 +349,42 @@ class StoredLogInfo:
                 f"JSON Log File: {self.json_log_file}\n\n"
                 f"Log Data:\n{df_for_log_data if df_for_log_data else 'No log data available'}\n\n"
                 f"Summary Data:\n{df_for_summary_data if df_for_summary_data else 'No summary data available'}")
+
+def get_config_data(path: str, enum_class_for_config_fields: Type[Enum]) -> dict:
+    """
+    Retrieves the configuration data from a specified path.
+
+    Args:
+        path (str): The path to the configuration file.
+        enum_class_for_config_fields (Type[Enum]): The Enum class representing the required configuration fields.
+
+    Returns:
+        dict: The configuration data.
+
+    Raises:
+        FileNotFoundError: If the configuration file is not found.
+        ValueError: If a required configuration field is missing.
+
+    Example:
+        >>> from enum import Enum
+        >>> class ConfigField(Enum):
+        >>>    API_KEY = 'api_key'
+        ...
+        >>> config_data = get_config_data('~/config.json', ConfigField)
+    """
+    config_path = os.path.expanduser(path)
+    
+    if not os.path.exists(config_path):
+        raise FileNotFoundError(f"Config file not found at '{config_path}'")
+
+    with open(config_path, 'r') as config_file:
+        config_data = json.load(config_file)
+
+        for field in enum_class_for_config_fields:
+            if field.value not in config_data:
+                raise ValueError(f"Required config field '{field.value}' is missing.")
+            
+    return config_data
 
 def process_arguments() -> StoredLogInfo:
     """
