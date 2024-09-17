@@ -540,5 +540,96 @@ def process_arguments() -> StoredLogInfo:
 
     return stored_log_info
 
+class Helper:
+    '''
+    A helper class for various tasks.
+
+    Attributes:
+        Unicode (class):
+            A class to provide Unicode representations for different purposes.
+        Emoji (Enum):
+            Enum to represent emojis for different meanings.
+    '''
+    class Unicode():
+        '''
+        A class to provide Unicode representations for different purposes.
+
+        Attributes:
+            get_unicode_representation_for_number (staticmethod):
+                Converts a given number into its Unicode representation, where each digit is replaced by its Unicode counterpart combined with the combining enclosing keycap.
+        '''
+        @staticmethod
+        def get_unicode_representation_for_number(number: int) -> str:
+            '''
+            Converts a given number into its Unicode representation, where each digit is replaced by its Unicode counterpart combined with the combining enclosing keycap.
+            '''
+            unicode_digits = {str(i): chr(0x0030 + i) for i in range(10)}
+            unicode_number = ''.join(f"{unicode_digits[digit]}\uFE0F\u20E3" for digit in str(number))
+            return unicode_number
+
+    class Emoji(Enum):
+        '''
+        Enum to represent emojis for different meanings.
+
+        Attributes:
+            NOTIFIER (tuple):
+                The tuple representing a notifier.
+            HOST (tuple):
+                The tuple representing a host.
+            LOG_FILE (tuple):
+                The tuple representing a log file.
+            PID (tuple):
+                The tuple representing a PID.
+            SUMMARY (tuple):
+                The tuple representing a summary.
+            RESULT (tuple):
+                The tuple representing a result.
+        '''
+        NOTIFIER = (
+            "🤖",
+            "\U0001F916"
+            )
+        HOST = (
+            "🌐",
+            "\U0001F310"
+            )
+        LOG_FILE = (
+            "📄",
+            "\U0001F4C4"
+            )
+        PID = (
+            "🆔",
+            "\U0001F194"
+            )
+        SUMMARY = (
+            "📈",
+            "\U0001F4C8"
+            )
+        RESULT = (
+            "🎯",
+            "\U0001F3AF"
+            )
+
+        def __init__(self, emoji, unicode):
+            self._emoji = emoji
+            self._unicode = unicode
+
+        @property
+        def emoji(self):
+            '''
+            Returns the actual emoji character.
+            '''
+            return self._emoji
+
+        @property
+        def unicode(self):
+            '''
+            Returns the Unicode character for the emoji.
+            '''
+            return self._unicode
+        
+        def __str__(self):
+            return self.unicode
+
 if __name__ == "__main__":
     process_arguments()
