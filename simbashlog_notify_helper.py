@@ -241,6 +241,25 @@ for field in DataFrameField:
     print(f"{field.name}: {field.value}")
 ```
 
+It contains the following fields:
+
+| Field (...`.name`) | Value (...`.value`) |
+|--------------------|---------------------|
+| EMERG              | EMERG               |
+| ALERT              | ALERT               |
+| CRIT               | CRIT                |
+| ERROR              | ERROR               |
+| WARN               | WARN                |
+| NOTICE             | NOTICE              |
+| INFO               | INFO                |
+| DEBUG              | DEBUG               |
+| TIMESTAMP          | timestamp           |
+| SCRIPT_INFO        | script_info         |
+| PID                | pid                 |
+| LEVEL              | level               |
+| MESSAGE            | message             |
+| SEVERITY_CODE      | severity_code       |
+| COUNT              | count               |
 '''
 DataFrameField = Enum(
     'DataFrameField', {
