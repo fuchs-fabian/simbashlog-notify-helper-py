@@ -231,6 +231,26 @@ class LogField(Enum):
     def __str__(self):
         return self.value
 
+'''
+Enum to represent all possible fields in a DataFrame
+
+Example to print all fields:
+
+```python
+for field in DataFrameField:
+    print(f"{field.name}: {field.value}")
+```
+
+'''
+DataFrameField = Enum(
+    'DataFrameField', {
+        **{severity.name: severity.name for severity in Severity},
+        **{log_field.name: log_field.value for log_field in LogField},
+        'SEVERITY_CODE': 'severity_code',
+        'COUNT': 'count'
+    }
+)
+
 class StoredLogInfo:
     '''
     A class to store and manage information related to `simbashlog` log processing.
@@ -369,6 +389,58 @@ class StoredLogInfo:
 
         # Clean up and validate DataFrames
         _cleanup_and_validate()
+
+    def get_highest_severity(self) -> Optional[Severity]:
+        '''
+        Determines the highest severity level from the log data.
+
+        Returns:
+            Optional[Severity]: The highest severity level.
+
+        Raises:
+            ValueError: If no log data is available to determine the highest severity.
+        '''
+        if self.data_df is None:
+            raise ValueError("No log data available to determine highest severity")
+        
+        severity_dict = {}
+
+        for level_name in self.data_df[LogField.LEVEL.value].unique():
+            try:
+                severity = Severity.get_by_name(level_name)
+                severity_dict[level_name] = severity.rfc_5424_numerical_code
+            except ValueError as e:
+                print(f"Warning: {e}")
+                continue
+
+        if not severity_dict:
+            return None
+
+        min_code = min(severity_dict.values())
+        return Severity.get_by_code(min_code)
+
+    def get_summarized_log_entries_df(self) -> pd.DataFrame:
+        '''
+        Summarizes the log entries based on the log level and message.
+
+        Returns:
+            pd.DataFrame: The DataFrame containing the summarized log entries.
+
+        Raises:
+            ValueError: If no log data is available to summarize log entries.
+        '''
+        if self.data_df is None:
+            raise ValueError("No log data available to summarize log entries")
+
+        self.data_df[DataFrameField.SEVERITY_CODE.value] = self.data_df[LogField.LEVEL.value].apply(
+            lambda level_name: (
+                Severity.get_by_name(level_name).rfc_5424_numerical_code
+                if Severity.get_by_name(level_name)
+                else float('inf')
+            )
+        )
+
+        return self.data_df.groupby([LogField.LEVEL.value, LogField.MESSAGE.value, DataFrameField.SEVERITY_CODE.value]).size().reset_index(name=DataFrameField.COUNT.value).sort_values(by=DataFrameField.SEVERITY_CODE.value)
 
     def __str__(self) -> str:
         df_for_log_data = None
