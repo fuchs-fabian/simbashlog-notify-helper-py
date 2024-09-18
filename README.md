@@ -18,6 +18,12 @@
   </table>
 </div>
 
+<p align="center">
+  <a href="https://github.com/fuchs-fabian/simbashlog-notify-helper-py/blob/main/examples/example.py">
+    <img alt="Example" src="https://img.shields.io/website?down_message=offline&label=example&up_color=007aff&up_message=online&url=https%3A%2F%2Fgithub.com%2Ffuchs-fabian%2Fsimbashlog-notify-helper-py%2Fblob%2Fmain%2Fexamples%2Fexample.py" />
+  </a>
+</p>
+
 ## Description
 
 `simbashlog-notify-helper` is a Python3 package designed to simplify the process of handling arguments for [`simbashlog` notifiers](https://github.com/fuchs-fabian/simbashlog-notifiers).
@@ -91,93 +97,14 @@ pip show simbashlog-notify-helper
 ```python
 #!/usr/bin/env python3
 
-import simbashlog_notify_helper as snh
+import simbashlog_notify_helper as snh # type: ignore
 
 def main():
     # Process command-line arguments
-    stored_info = snh.process_arguments()
+    stored_log_info = snh.process_arguments()
 
-    # Your notifier logic here
+    # Your notifier logic here (for more information, see the examples in the repository)
     # ...
-
-if __name__ == "__main__":
-    main()
-```
-
-#### Example usage / notifier (symbolic)
-
-```python
-#!/usr/bin/env python3
-
-import sys
-import simbashlog_notify_helper as snh
-
-def main():
-    # Process command-line arguments
-    stored_info = snh.process_arguments()
-
-    print("---------------------------------------------------------------------------------")
-
-    # Print the stored log information
-    print("\nStored Log Information:")
-    print(stored_info)
-
-    print("---------------------------------------------------------------------------------\n")
-
-    # Print all severity levels and details for ERROR severity
-    for severity in snh.Severity:
-        print(severity)
-
-    # Access details for ERROR severity
-    print(f"\n{snh.Severity.ERROR}")
-
-    print(f"\nName: {snh.Severity.ERROR.name}")
-    print(f"RFC 5424 Numerical Code: {snh.Severity.ERROR.rfc_5424_numerical_code}")
-    print(f"RFC 5424 Severity: {snh.Severity.ERROR.rfc_5424_severity}")
-    print(f"RFC 5424 Description: {snh.Severity.ERROR.rfc_5424_description}")
-    print(f"Emoji: {snh.Severity.ERROR.emoji}")
-    print(f"Unicode: {snh.Severity.ERROR.unicode}")
-
-    print("---------------------------------------------------------------------------------")
-
-    # Optionally, access DataFrame if available
-    if stored_info.data_df is not None:
-        print("\nData DataFrame:")
-        print(stored_info.data_df)
-        
-        # Example: Count how many logs have the same message
-        message_counts = stored_info.data_df[snh.LogField.MESSAGE.value].value_counts()
-        print("\nMessage Counts:")
-        print(message_counts)
-
-        # Example: Count how many ERRORs are logged
-        error_count = stored_info.data_df[stored_info.data_df[snh.LogField.LEVEL.value] == snh.Severity.ERROR.name].shape[0]
-        print(f"\nNumber of ERROR logs: {error_count}")
-
-        # Example: Count how many unique PIDs are in the DataFrame
-        unique_pids_count = stored_info.data_df[snh.LogField.PID.value].nunique()
-        print(f"\nNumber of unique PIDs: {unique_pids_count}")
-
-        print("---------------------------------------------------------------------------------")
-
-    # Optionally, print summary DataFrame if available
-    if stored_info.summary_df is not None:
-        print("\nSummary DataFrame:")
-        print(stored_info.summary_df)
-        
-        # Example: Total counts of each severity level in the summary DataFrame
-        severity_totals = stored_info.summary_df.drop(columns=snh.LogField.PID.value).sum()
-        print("\nTotal counts of each severity level:")
-        for severity, count in severity_totals.items():
-            print(f"{severity}: {count}")
-
-        # Example: Number of unique PIDs in the summary DataFrame
-        unique_pids_in_summary = stored_info.summary_df[snh.LogField.PID.value].nunique()
-        print(f"\nNumber of unique PIDs in summary DataFrame: {unique_pids_in_summary}")
-
-        print("---------------------------------------------------------------------------------")
-
-    sys.exit(0)
 
 if __name__ == "__main__":
     main()
