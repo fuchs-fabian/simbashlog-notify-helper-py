@@ -44,9 +44,11 @@ class Severity(Enum):
 
     Example:
         >>> Severity.ERROR
-        'ERROR' (RFC 5424 Numerical Code: '3', RFC 5424 Severity: 'Error', RFC 5424 Description: 'Error conditions', Emoji: '❗', Unicode: '\u2757')"
+        ERROR
         >>> Severity.ERROR.name
         ERROR
+        >>> Severity.ERROR.value
+        (3, 'Error', 'Error conditions', '❗', '\u2757')
         >>> Severity.ERROR.rfc_5424_numerical_code
         3
         >>> Severity.ERROR.rfc_5424_severity
@@ -189,7 +191,7 @@ class Severity(Enum):
         raise ValueError(f"No matching severity found for name '{name}'")
 
     def __str__(self):
-        return f"'{self.name}' (RFC 5424 Numerical Code: '{self.rfc_5424_numerical_code}', RFC 5424 Severity: '{self.rfc_5424_severity}', RFC 5424 Description: '{self.rfc_5424_description}', Emoji: '{self.emoji}', Unicode: '{self.unicode}')"
+        return self.name
 
 class LogField(Enum):
     '''
@@ -218,16 +220,7 @@ class LogField(Enum):
         return self.value
 
 '''
-Enum to represent all possible fields in a DataFrame
-
-Example to print all fields:
-
-```python
-for field in DataFrameField:
-    print(f"{field.name}: {field.value}")
-```
-
-It contains the following fields:
+Enum to represent all possible fields in a DataFrame:
 
 | Field (...`.name`) | Value (...`.value`) |
 |--------------------|---------------------|
@@ -397,6 +390,77 @@ class StoredLogInfo:
         # Clean up and validate DataFrames
         _cleanup_and_validate()
 
+    def get_summarized_log_entries_df(self) -> pd.DataFrame:
+        '''
+        Summarizes the log entries based on the log level and message.
+
+        Returns:
+            pd.DataFrame: The DataFrame containing the summarized log entries.
+
+        Raises:
+            ValueError: If no log data is available to summarize log entries.
+        '''
+        if self.data_df is None:
+            raise ValueError("No log data available to summarize log entries")
+
+        self.data_df[DataFrameField.SEVERITY_CODE.value] = self.data_df[LogField.LEVEL.value].apply(
+            lambda level_name: (
+                Severity.get_by_name(level_name).rfc_5424_numerical_code
+                if Severity.get_by_name(level_name)
+                else float('inf')
+            )
+        )
+
+        return self.data_df.groupby([LogField.LEVEL.value, LogField.MESSAGE.value, DataFrameField.SEVERITY_CODE.value]).size().reset_index(name=DataFrameField.COUNT.value).sort_values(by=DataFrameField.SEVERITY_CODE.value)
+
+    def get_number_of_unique_pids(self) -> Optional[int]:
+        '''
+        Determines the number of unique process IDs (PIDs) from the log data.
+
+        Returns:
+            Optional[int]: The number of unique PIDs.
+
+        Raises:
+            ValueError: If no log data is available to determine the number of unique PIDs.
+        '''
+        if self.data_df is None:
+            raise ValueError("No log data available to determine number of unique PIDs")
+
+        return self.data_df[LogField.PID.value].nunique()
+
+    def get_number_of_log_entries(self) -> Optional[int]:
+        '''
+        Determines the number of log entries from the log data.
+
+        Returns:
+            Optional[int]: The number of log entries.
+
+        Raises:
+            ValueError: If no log data is available to determine the number of log entries.
+        '''
+        if self.data_df is None:
+            raise ValueError("No log data available to determine number of log entries")
+
+        return self.data_df.shape[0]
+
+    def get_number_of_log_entries_by_severity(self, severity: Severity) -> Optional[int]:
+        '''
+        Determines the number of log entries for a specific severity level from the log data.
+
+        Args:
+            severity (Severity): The severity level.
+
+        Returns:
+            Optional[int]: The number of log entries for the specified severity level.
+
+        Raises:
+            ValueError: If no log data is available to determine the number of log entries for the specified severity level.
+        '''
+        if self.data_df is None:
+            raise ValueError("No log data available to determine number of log entries by severity")
+
+        return self.data_df[self.data_df[LogField.LEVEL.value] == severity.name].shape[0]
+
     def get_highest_severity(self) -> Optional[Severity]:
         '''
         Determines the highest severity level from the log data.
@@ -425,29 +489,6 @@ class StoredLogInfo:
 
         min_code = min(severity_dict.values())
         return Severity.get_by_code(min_code)
-
-    def get_summarized_log_entries_df(self) -> pd.DataFrame:
-        '''
-        Summarizes the log entries based on the log level and message.
-
-        Returns:
-            pd.DataFrame: The DataFrame containing the summarized log entries.
-
-        Raises:
-            ValueError: If no log data is available to summarize log entries.
-        '''
-        if self.data_df is None:
-            raise ValueError("No log data available to summarize log entries")
-
-        self.data_df[DataFrameField.SEVERITY_CODE.value] = self.data_df[LogField.LEVEL.value].apply(
-            lambda level_name: (
-                Severity.get_by_name(level_name).rfc_5424_numerical_code
-                if Severity.get_by_name(level_name)
-                else float('inf')
-            )
-        )
-
-        return self.data_df.groupby([LogField.LEVEL.value, LogField.MESSAGE.value, DataFrameField.SEVERITY_CODE.value]).size().reset_index(name=DataFrameField.COUNT.value).sort_values(by=DataFrameField.SEVERITY_CODE.value)
 
     def __str__(self) -> str:
         df_for_log_data = None
@@ -543,11 +584,11 @@ class Helper:
         A class to provide Unicode representations for different purposes.
 
         Attributes:
-            get_unicode_representation_for_number (staticmethod):
+            get_representation_for_number (staticmethod):
                 Converts a given number into its Unicode representation, where each digit is replaced by its Unicode counterpart combined with the combining enclosing keycap.
         '''
         @staticmethod
-        def get_unicode_representation_for_number(number: int) -> str:
+        def get_representation_for_number(number: int) -> str:
             '''
             Converts a given number into its Unicode representation, where each digit is replaced by its Unicode counterpart combined with the combining enclosing keycap.
             '''
