@@ -60,7 +60,6 @@ class Severity(Enum):
     '''
 
     EMERG = (
-        "EMERG",
         0,
         "Emergency",
         "System is unusable",
@@ -68,7 +67,6 @@ class Severity(Enum):
         "\U0001F691"
         )
     ALERT = (
-        "ALERT",
         1,
         "Alert",
         "Action must be taken immediately",
@@ -76,7 +74,6 @@ class Severity(Enum):
         "\U0001F6A8"
         )
     CRIT = (
-        "CRIT",
         2,
         "Critical",
         "Critical conditions",
@@ -84,7 +81,6 @@ class Severity(Enum):
         "\U0001F525"
         )
     ERROR = (
-        "ERROR",
         3,
         "Error",
         "Error conditions",
@@ -92,7 +88,6 @@ class Severity(Enum):
         "\u2757"
         )
     WARN = (
-        "WARN",
         4,
         "Warning",
         "Warning conditions",
@@ -100,7 +95,6 @@ class Severity(Enum):
         "\u26A0\uFE0F"
         )
     NOTICE = (
-        "NOTICE",
         5,
         "Notice",
         "Normal but significant condition",
@@ -108,7 +102,6 @@ class Severity(Enum):
         "\U0001F4DD"
         )
     INFO = (
-        "INFO",
         6,
         "Informational",
         "Informational messages",
@@ -116,7 +109,6 @@ class Severity(Enum):
         "\u2139\uFE0F"
         )
     DEBUG = (
-        "DEBUG",
         7,
         "Debug",
         "Debug-level messages",
@@ -126,23 +118,17 @@ class Severity(Enum):
 
     def __init__(
             self,
-            name: str,
             rfc_5424_numerical_code:int,
             rfc_5424_severity: str,
             rfc_5424_description: str,
             emoji: str,
             unicode: str
             ):
-        self._name = name
         self._rfc_5424_numerical_code = rfc_5424_numerical_code
         self._rfc_5424_severity = rfc_5424_severity
         self._rfc_5424_description = rfc_5424_description
         self._emoji = emoji
         self._unicode = unicode
-
-    @property
-    def name(self):
-        return self._name
 
     @property
     def rfc_5424_numerical_code(self):
@@ -269,6 +255,8 @@ DataFrameField = Enum(
         'COUNT': 'count'
     }
 )
+
+DataFrameField.__str__ = lambda self: self.value
 
 class StoredLogInfo:
     '''
