@@ -491,22 +491,24 @@ class StoredLogInfo:
         return Severity.get_by_code(min_code)
 
     def __str__(self) -> str:
+        number_of_first_df_rows_to_show = 5
+
         df_for_log_data = None
         df_for_summary_data = None
 
         if self.data_df is not None:
-            df_for_log_data = self.data_df.head(5).to_string()  # Show first 5 rows for log data
+            df_for_log_data = self.data_df.head(number_of_first_df_rows_to_show).to_string()
 
         if self.summary_df is not None:
-            df_for_summary_data = self.summary_df.head(5).to_string()  # Show first 5 rows for summary data
+            df_for_summary_data = self.summary_df.head(number_of_first_df_rows_to_show).to_string()
 
         return (f"Process ID: {self.pid}\n"
                 f"Log Level: {self.log_level}\n"
                 f"Message: {self.message}\n"
                 f"Log File: {self.log_file}\n"
                 f"JSON Log File: {self.json_log_file}\n\n"
-                f"Log Data:\n{df_for_log_data if df_for_log_data else 'No log data available'}\n\n"
-                f"Summary Data:\n{df_for_summary_data if df_for_summary_data else 'No summary data available'}")
+                f"Log Data (max. first {number_of_first_df_rows_to_show} rows):\n{df_for_log_data if df_for_log_data else 'No log data available'}\n\n"
+                f"Summary Data (max. first {number_of_first_df_rows_to_show} rows):\n{df_for_summary_data if df_for_summary_data else 'No summary data available'}")
 
 def get_config_data(path: str, enum_class_for_config_fields: Type[Enum]) -> dict:
     '''
