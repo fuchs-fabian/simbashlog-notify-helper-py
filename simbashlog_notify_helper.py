@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 
 import argparse
+import os
 import re
 import json
 import pandas as pd # type: ignore
 from datetime import datetime
 from enum import Enum
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Type
 
 class Severity(Enum):
     '''
@@ -43,9 +44,11 @@ class Severity(Enum):
 
     Example:
         >>> Severity.ERROR
-        'ERROR' (RFC 5424 Numerical Code: '3', RFC 5424 Severity: 'Error', RFC 5424 Description: 'Error conditions', Emoji: '❗', Unicode: '\u2757')"
+        ERROR
         >>> Severity.ERROR.name
         ERROR
+        >>> Severity.ERROR.value
+        (3, 'Error', 'Error conditions', '❗', '\u2757')
         >>> Severity.ERROR.rfc_5424_numerical_code
         3
         >>> Severity.ERROR.rfc_5424_severity
@@ -59,7 +62,6 @@ class Severity(Enum):
     '''
 
     EMERG = (
-        "EMERG",
         0,
         "Emergency",
         "System is unusable",
@@ -67,7 +69,6 @@ class Severity(Enum):
         "\U0001F691"
         )
     ALERT = (
-        "ALERT",
         1,
         "Alert",
         "Action must be taken immediately",
@@ -75,7 +76,6 @@ class Severity(Enum):
         "\U0001F6A8"
         )
     CRIT = (
-        "CRIT",
         2,
         "Critical",
         "Critical conditions",
@@ -83,7 +83,6 @@ class Severity(Enum):
         "\U0001F525"
         )
     ERROR = (
-        "ERROR",
         3,
         "Error",
         "Error conditions",
@@ -91,7 +90,6 @@ class Severity(Enum):
         "\u2757"
         )
     WARN = (
-        "WARN",
         4,
         "Warning",
         "Warning conditions",
@@ -99,7 +97,6 @@ class Severity(Enum):
         "\u26A0\uFE0F"
         )
     NOTICE = (
-        "NOTICE",
         5,
         "Notice",
         "Normal but significant condition",
@@ -107,7 +104,6 @@ class Severity(Enum):
         "\U0001F4DD"
         )
     INFO = (
-        "INFO",
         6,
         "Informational",
         "Informational messages",
@@ -115,7 +111,6 @@ class Severity(Enum):
         "\u2139\uFE0F"
         )
     DEBUG = (
-        "DEBUG",
         7,
         "Debug",
         "Debug-level messages",
@@ -125,23 +120,17 @@ class Severity(Enum):
 
     def __init__(
             self,
-            name: str,
             rfc_5424_numerical_code:int,
             rfc_5424_severity: str,
             rfc_5424_description: str,
             emoji: str,
             unicode: str
             ):
-        self._name = name
         self._rfc_5424_numerical_code = rfc_5424_numerical_code
         self._rfc_5424_severity = rfc_5424_severity
         self._rfc_5424_description = rfc_5424_description
         self._emoji = emoji
         self._unicode = unicode
-
-    @property
-    def name(self):
-        return self._name
 
     @property
     def rfc_5424_numerical_code(self):
@@ -162,9 +151,47 @@ class Severity(Enum):
     @property
     def unicode(self):
         return self._unicode
+    
+    @classmethod
+    def get_by_code(cls, code: int) -> 'Severity':
+        '''
+        Returns the severity level based on the numerical code.
+
+        Args:
+            code (int): The numerical code of the severity level.
+
+        Returns:
+            Severity: The severity level.
+
+        Raises:
+            ValueError: If no matching severity level is found for the given code.
+        '''
+        for severity in cls:
+            if severity.rfc_5424_numerical_code == code:
+                return severity
+        raise ValueError(f"No matching severity found for code '{code}'")
+
+    @classmethod
+    def get_by_name(cls, name: str) -> 'Severity':
+        '''
+        Returns the severity level based on the name.
+
+        Args:
+            name (str): The name of the severity level.
+
+        Returns:
+            Severity: The severity level.
+
+        Raises:
+            ValueError: If no matching severity level is found for the given name.
+        '''
+        for severity in cls:
+            if severity.name == name:
+                return severity
+        raise ValueError(f"No matching severity found for name '{name}'")
 
     def __str__(self):
-        return f"'{self.name}' (RFC 5424 Numerical Code: '{self.rfc_5424_numerical_code}', RFC 5424 Severity: '{self.rfc_5424_severity}', RFC 5424 Description: '{self.rfc_5424_description}', Emoji: '{self.emoji}', Unicode: '{self.unicode}')"
+        return self.name
 
 class LogField(Enum):
     '''
@@ -192,8 +219,40 @@ class LogField(Enum):
     def __str__(self):
         return self.value
 
+'''
+Enum to represent all possible fields in a DataFrame:
+
+| Field (...`.name`) | Value (...`.value`) |
+|--------------------|---------------------|
+| EMERG              | EMERG               |
+| ALERT              | ALERT               |
+| CRIT               | CRIT                |
+| ERROR              | ERROR               |
+| WARN               | WARN                |
+| NOTICE             | NOTICE              |
+| INFO               | INFO                |
+| DEBUG              | DEBUG               |
+| TIMESTAMP          | timestamp           |
+| SCRIPT_INFO        | script_info         |
+| PID                | pid                 |
+| LEVEL              | level               |
+| MESSAGE            | message             |
+| SEVERITY_CODE      | severity_code       |
+| COUNT              | count               |
+'''
+DataFrameField = Enum(
+    'DataFrameField', {
+        **{severity.name: severity.name for severity in Severity},
+        **{log_field.name: log_field.value for log_field in LogField},
+        'SEVERITY_CODE': 'severity_code',
+        'COUNT': 'count'
+    }
+)
+
+DataFrameField.__str__ = lambda self: self.value
+
 class StoredLogInfo:
-    """
+    '''
     A class to store and manage information related to `simbashlog` log processing.
 
     Attributes:
@@ -211,7 +270,7 @@ class StoredLogInfo:
             The DataFrame containing the loaded data from log or JSON log file.
         summary_df (Optional[pd.DataFrame]):
             The DataFrame containing the summary information from log or JSON log file.
-    """
+    '''
 
     def __init__(self):
         self.pid: Optional[int] = None
@@ -278,13 +337,13 @@ class StoredLogInfo:
                 logs = []
                 summaries = []
 
-                for pid in log_data.get("pids", []):
-                    for log in log_data[pid]["logs"]:
+                for pid in log_data.get('pids', []):
+                    for log in log_data[pid]['logs']:
                         log[LogField.PID.value] = pid
                         log[LogField.TIMESTAMP.value] = datetime.fromtimestamp(log[LogField.TIMESTAMP.value])
                         logs.append(log)
 
-                    summary = log_data[pid]["summary"]
+                    summary = log_data[pid]['summary']
                     summary_dict = {LogField.PID.value: pid}
                     for severity in Severity:
                         summary_dict[severity.name] = summary.get(severity.name, 0)
@@ -331,33 +390,171 @@ class StoredLogInfo:
         # Clean up and validate DataFrames
         _cleanup_and_validate()
 
+    def get_summarized_log_entries_df(self) -> pd.DataFrame:
+        '''
+        Summarizes the log entries based on the log level and message.
+
+        Returns:
+            pd.DataFrame: The DataFrame containing the summarized log entries.
+
+        Raises:
+            ValueError: If no log data is available to summarize log entries.
+        '''
+        if self.data_df is None:
+            raise ValueError("No log data available to summarize log entries")
+
+        self.data_df[DataFrameField.SEVERITY_CODE.value] = self.data_df[LogField.LEVEL.value].apply(
+            lambda level_name: (
+                Severity.get_by_name(level_name).rfc_5424_numerical_code
+                if Severity.get_by_name(level_name)
+                else float('inf')
+            )
+        )
+
+        return self.data_df.groupby([LogField.LEVEL.value, LogField.MESSAGE.value, DataFrameField.SEVERITY_CODE.value]).size().reset_index(name=DataFrameField.COUNT.value).sort_values(by=DataFrameField.SEVERITY_CODE.value)
+
+    def get_number_of_unique_pids(self) -> Optional[int]:
+        '''
+        Determines the number of unique process IDs (PIDs) from the log data.
+
+        Returns:
+            Optional[int]: The number of unique PIDs.
+
+        Raises:
+            ValueError: If no log data is available to determine the number of unique PIDs.
+        '''
+        if self.data_df is None:
+            raise ValueError("No log data available to determine number of unique PIDs")
+
+        return self.data_df[LogField.PID.value].nunique()
+
+    def get_number_of_log_entries(self) -> Optional[int]:
+        '''
+        Determines the number of log entries from the log data.
+
+        Returns:
+            Optional[int]: The number of log entries.
+
+        Raises:
+            ValueError: If no log data is available to determine the number of log entries.
+        '''
+        if self.data_df is None:
+            raise ValueError("No log data available to determine number of log entries")
+
+        return self.data_df.shape[0]
+
+    def get_number_of_log_entries_by_severity(self, severity: Severity) -> Optional[int]:
+        '''
+        Determines the number of log entries for a specific severity level from the log data.
+
+        Args:
+            severity (Severity): The severity level.
+
+        Returns:
+            Optional[int]: The number of log entries for the specified severity level.
+
+        Raises:
+            ValueError: If no log data is available to determine the number of log entries for the specified severity level.
+        '''
+        if self.data_df is None:
+            raise ValueError("No log data available to determine number of log entries by severity")
+
+        return self.data_df[self.data_df[LogField.LEVEL.value] == severity.name].shape[0]
+
+    def get_highest_severity(self) -> Optional[Severity]:
+        '''
+        Determines the highest severity level from the log data.
+
+        Returns:
+            Optional[Severity]: The highest severity level.
+
+        Raises:
+            ValueError: If no log data is available to determine the highest severity.
+        '''
+        if self.data_df is None:
+            raise ValueError("No log data available to determine highest severity")
+        
+        severity_dict = {}
+
+        for level_name in self.data_df[LogField.LEVEL.value].unique():
+            try:
+                severity = Severity.get_by_name(level_name)
+                severity_dict[level_name] = severity.rfc_5424_numerical_code
+            except ValueError as e:
+                print(f"Warning: {e}")
+                continue
+
+        if not severity_dict:
+            return None
+
+        min_code = min(severity_dict.values())
+        return Severity.get_by_code(min_code)
+
     def __str__(self) -> str:
+        number_of_first_df_rows_to_show = 5
+
         df_for_log_data = None
         df_for_summary_data = None
 
         if self.data_df is not None:
-            df_for_log_data = self.data_df.head(5).to_string()  # Show first 5 rows for log data
+            df_for_log_data = self.data_df.head(number_of_first_df_rows_to_show).to_string()
 
         if self.summary_df is not None:
-            df_for_summary_data = self.summary_df.head(5).to_string()  # Show first 5 rows for summary data
+            df_for_summary_data = self.summary_df.head(number_of_first_df_rows_to_show).to_string()
 
         return (f"Process ID: {self.pid}\n"
                 f"Log Level: {self.log_level}\n"
                 f"Message: {self.message}\n"
                 f"Log File: {self.log_file}\n"
                 f"JSON Log File: {self.json_log_file}\n\n"
-                f"Log Data:\n{df_for_log_data if df_for_log_data else 'No log data available'}\n\n"
-                f"Summary Data:\n{df_for_summary_data if df_for_summary_data else 'No summary data available'}")
+                f"Log Data (max. first {number_of_first_df_rows_to_show} rows):\n{df_for_log_data if df_for_log_data else 'No log data available'}\n\n"
+                f"Summary Data (max. first {number_of_first_df_rows_to_show} rows):\n{df_for_summary_data if df_for_summary_data else 'No summary data available'}")
+
+def get_config_data(path: str, enum_class_for_config_fields: Type[Enum]) -> dict:
+    '''
+    Retrieves the configuration data from a specified path.
+
+    Args:
+        path (str): The path to the configuration file.
+        enum_class_for_config_fields (Type[Enum]): The Enum class representing the required configuration fields.
+
+    Returns:
+        dict: The configuration data.
+
+    Raises:
+        FileNotFoundError: If the configuration file is not found.
+        ValueError: If a required configuration field is missing.
+
+    Example:
+        >>> from enum import Enum
+        >>> class ConfigField(Enum):
+        >>>    API_KEY = 'api_key'
+        ...
+        >>> config_data = get_config_data('~/config.json', ConfigField)
+    '''
+    config_path = os.path.expanduser(path)
+    
+    if not os.path.exists(config_path):
+        raise FileNotFoundError(f"Config file not found at '{config_path}'")
+
+    with open(config_path, 'r') as config_file:
+        config_data = json.load(config_file)
+
+        for field in enum_class_for_config_fields:
+            if field.value not in config_data:
+                raise ValueError(f"Required config field '{field.value}' is missing.")
+            
+    return config_data
 
 def process_arguments() -> StoredLogInfo:
-    """
+    '''
     Processes the command-line arguments for a `simbashlog`-notifier.
 
     Officially supported `simbashlog`-notifier: https://github.com/fuchs-fabian/simbashlog-notifiers
 
     Returns:
         StoredLogInfo: Contains all important information transmitted by `simbashlog`.
-    """
+    '''
 
     parser = argparse.ArgumentParser(description="Notifier for simbashlog.")
 
@@ -373,6 +570,97 @@ def process_arguments() -> StoredLogInfo:
     stored_log_info._update(args)
 
     return stored_log_info
+
+class Helper:
+    '''
+    A helper class for various tasks.
+
+    Attributes:
+        Unicode (class):
+            A class to provide Unicode representations for different purposes.
+        Emoji (Enum):
+            Enum to represent emojis for different meanings.
+    '''
+    class Unicode():
+        '''
+        A class to provide Unicode representations for different purposes.
+
+        Attributes:
+            get_representation_for_number (staticmethod):
+                Converts a given number into its Unicode representation, where each digit is replaced by its Unicode counterpart combined with the combining enclosing keycap.
+        '''
+        @staticmethod
+        def get_representation_for_number(number: int) -> str:
+            '''
+            Converts a given number into its Unicode representation, where each digit is replaced by its Unicode counterpart combined with the combining enclosing keycap.
+            '''
+            unicode_digits = {str(i): chr(0x0030 + i) for i in range(10)}
+            unicode_number = ''.join(f"{unicode_digits[digit]}\uFE0F\u20E3" for digit in str(number))
+            return unicode_number
+
+    class Emoji(Enum):
+        '''
+        Enum to represent emojis for different meanings.
+
+        Attributes:
+            NOTIFIER (tuple):
+                The tuple representing a notifier.
+            HOST (tuple):
+                The tuple representing a host.
+            LOG_FILE (tuple):
+                The tuple representing a log file.
+            PID (tuple):
+                The tuple representing a PID.
+            SUMMARY (tuple):
+                The tuple representing a summary.
+            RESULT (tuple):
+                The tuple representing a result.
+        '''
+        NOTIFIER = (
+            "🤖",
+            "\U0001F916"
+            )
+        HOST = (
+            "🌐",
+            "\U0001F310"
+            )
+        LOG_FILE = (
+            "📄",
+            "\U0001F4C4"
+            )
+        PID = (
+            "🆔",
+            "\U0001F194"
+            )
+        SUMMARY = (
+            "📈",
+            "\U0001F4C8"
+            )
+        RESULT = (
+            "🎯",
+            "\U0001F3AF"
+            )
+
+        def __init__(self, emoji, unicode):
+            self._emoji = emoji
+            self._unicode = unicode
+
+        @property
+        def emoji(self):
+            '''
+            Returns the actual emoji character.
+            '''
+            return self._emoji
+
+        @property
+        def unicode(self):
+            '''
+            Returns the Unicode character for the emoji.
+            '''
+            return self._unicode
+        
+        def __str__(self):
+            return self.unicode
 
 if __name__ == "__main__":
     process_arguments()
