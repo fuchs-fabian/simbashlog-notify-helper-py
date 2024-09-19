@@ -4,6 +4,7 @@ import argparse
 import os
 import re
 import json
+import sys
 import pandas as pd # type: ignore
 from datetime import datetime
 from enum import Enum
@@ -570,6 +571,32 @@ def process_arguments() -> StoredLogInfo:
     stored_log_info._update(args)
 
     return stored_log_info
+
+def handle_unexpected_exceptions(func, *args):
+    '''
+    This function is used to handle unexpected exceptions that occur during the execution of the `simbashlog-notifier` script.
+
+    If an unexpected exception occurs, the script will print an error message and exit with code 1.
+
+    Args:
+        func (function): The function that should be executed.
+        *args: The arguments that should be passed to the function.
+
+    Returns:
+        The return value of the function.
+    '''
+    try:
+        return func(*args)
+    except Exception as e:
+        print()
+        print("┌────────────────────────────────────────────┐")
+        print("│  UNEXPECTED SIMBASHLOG-NOTIFIER EXCEPTION  │")
+        print("└────────────────────────────────────────────┘")
+        print()
+
+        print(f"An unexpected exception occurred while '{func.__name__}' was being processed:\n{e}")
+        print()
+        sys.exit(1)
 
 class Helper:
     '''
