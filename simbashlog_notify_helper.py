@@ -6,6 +6,7 @@ import re
 import json
 import sys
 import pandas as pd # type: ignore
+from contextlib import contextmanager
 from datetime import datetime
 from enum import Enum
 from typing import Optional, Tuple, Type
@@ -571,6 +572,28 @@ def process_arguments() -> StoredLogInfo:
     stored_log_info._update(args)
 
     return stored_log_info
+
+@contextmanager
+def suppress_output():
+    '''
+    Suppresses the output to stdout.
+
+    This is useful when you want to suppress the output of a specific block of code you have no control over.
+
+    Example:
+        >>> with suppress_output():
+            print("This will not be printed.")
+    '''
+    with open(os.devnull, 'w') as devnull:
+        old_stdout = sys.stdout     # Keep the old stdout
+        old_stderr = sys.stderr     # Keep the old stderr
+        try:
+            sys.stdout = devnull    # Redirect stdout to devnull
+            sys.stderr = devnull    # Optionally redirect stderr as well
+            yield                   # Allow code to be run with the suppressed output
+        finally:
+            sys.stdout = old_stdout # Restore stdout
+            sys.stderr = old_stderr # Restore stderr
 
 def handle_unexpected_exceptions(func, *args):
     '''
