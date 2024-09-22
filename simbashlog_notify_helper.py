@@ -548,6 +548,45 @@ def get_config_data(path: str, enum_class_for_config_fields: Type[Enum]) -> dict
             
     return config_data
 
+class NotifierConfig:
+    '''
+    Represents the configuration of the notifier.
+    '''
+    def __init__(self, **kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+    
+    @classmethod
+    def get_path(cls, notifier_name: str) -> str:
+        '''
+        Returns the path to the configuration file.
+
+        Args:
+            notifier_name (str): The name of the notifier.
+
+        Returns:
+            str: The path to the configuration file.
+        '''
+        return f"~/.config/simbashlog-notifier/{notifier_name}/config.json"
+    
+    @classmethod
+    def get_data(cls, notifier_name: str, enum_class_for_config_fields: Type[Enum]) -> dict:
+        '''
+        Returns the configuration data.
+
+        Args:
+            notifier_name (str): The name of the notifier.
+            enum_class_for_config_fields (Type[Enum]): The Enum class representing the required configuration fields.
+
+        Returns:
+            dict: The configuration data.
+
+        Raises:
+            FileNotFoundError: If the configuration file is not found.
+            ValueError: If a required configuration field is missing.
+        '''
+        return get_config_data(cls.get_path(notifier_name), enum_class_for_config_fields)
+
 def process_arguments() -> StoredLogInfo:
     '''
     Processes the command-line arguments for a `simbashlog`-notifier.
