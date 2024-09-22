@@ -621,6 +621,29 @@ def handle_unexpected_exceptions(func, *args):
         print()
         sys.exit(1)
 
+def unexpected_exception_handler(func):
+    '''
+    Decorator to handle unexpected exceptions.
+
+    If an unexpected exception occurs, the script will print an error message and exit with code 1.
+
+    Args:
+        func (function): The function that should be executed.
+
+    Returns:
+        function: The wrapper function that handles unexpected exceptions.
+
+    Example:
+        >>> @unexpected_exception_handler
+        ... def your_function():
+        ... # Your code here
+
+        >>> your_function()
+    '''
+    def wrapper(*args, **kwargs):
+        return handle_unexpected_exceptions(func, *args, **kwargs)
+    return wrapper
+
 class Helper:
     '''
     A helper class for various tasks.
