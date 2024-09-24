@@ -548,6 +548,8 @@ def get_config_data(path: str, enum_class_for_config_fields: Type[Enum]) -> dict
             
     return config_data
 
+CUSTOM_CONFIG_PATH = None
+
 class NotifierConfig:
     '''
     Represents the configuration of the notifier.
@@ -562,20 +564,23 @@ class NotifierConfig:
         Returns the path to the configuration file.
 
         Args:
-            notifier_name (str): The name of the notifier.
+            notifier_name (str): The name of the notifier. This is used to determine the path to the configuration file if no custom path is provided by argument.
 
         Returns:
             str: The path to the configuration file.
         '''
-        return f"~/.config/simbashlog-notifier/{notifier_name}/config.json"
-    
+        if CUSTOM_CONFIG_PATH:
+            return CUSTOM_CONFIG_PATH
+        else:
+            return f"~/.config/simbashlog-notifier/{notifier_name}/config.json"
+
     @classmethod
     def get_data(cls, notifier_name: str, enum_class_for_config_fields: Type[Enum]) -> dict:
         '''
         Returns the configuration data.
 
         Args:
-            notifier_name (str): The name of the notifier.
+            notifier_name (str): The name of the notifier. This is used to determine the path to the configuration file if no custom path is provided by argument.
             enum_class_for_config_fields (Type[Enum]): The Enum class representing the required configuration fields.
 
         Returns:
@@ -599,6 +604,7 @@ def process_arguments() -> StoredLogInfo:
 
     parser = argparse.ArgumentParser(description="Notifier for simbashlog.")
 
+    parser.add_argument('--config', type=str, help="Path to a custom config file.")
     parser.add_argument('--pid', type=int, help="The used process ID.")
     parser.add_argument('--log-level', type=int, help="The used log level (sourced simbashlog) / severity number (simbashlog called with arguments).")
     parser.add_argument('--message', type=str, help="The logged message (simbashlog called with arguments).")
@@ -606,7 +612,14 @@ def process_arguments() -> StoredLogInfo:
     parser.add_argument('--json-log-file', type=str, help="The created *_log.json file.")
 
     args = parser.parse_args()
-    
+
+    if args.config:
+        global CUSTOM_CONFIG_PATH
+        if not os.path.isfile(args.config):
+            print(f"Custom config path is not a valid file: {args.config}")
+            sys.exit(1)
+        CUSTOM_CONFIG_PATH = args.config
+
     stored_log_info = StoredLogInfo()
     stored_log_info._update(args)
 

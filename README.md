@@ -26,7 +26,7 @@
 
 ## Description
 
-`simbashlog-notify-helper` is a Python3 package designed to simplify the process of handling arguments for [`simbashlog` notifiers](https://github.com/fuchs-fabian/simbashlog-notifiers).
+`simbashlog-notify-helper` is a Python3 package designed to simplify the process of creating [`simbashlog` notifiers](https://github.com/fuchs-fabian/simbashlog-notifiers).
 
 <div align="left">
   <table>
@@ -40,8 +40,6 @@
   </table>
 </div>
 
-By importing this package, you can focus solely on the logic of your notifier without worrying how to handle the arguments passed to it and how to process them.
-
 ### Features
 
 - Automatically handles and parses command-line arguments passed by `simbashlog`.
@@ -49,6 +47,7 @@ By importing this package, you can focus solely on the logic of your notifier wi
   - Provides access to log data in a structured format using [pandas](https://pandas.pydata.org/) DataFrames.
   - Summary generation.
 - Provides access to log severity levels and their details based on [RFC 5424](https://tools.ietf.org/html/rfc5424) to create a more informative notifier.
+- Provides functions so that validations are carried out and other aids that greatly simplify the creation of a notifier script.
 
 > **Note:** This package is designed to be used with [`simbashlog`](https://github.com/fuchs-fabian/simbashlog). If you are not familiar with `simbashlog`, please have a look at the "core" repository:
 
