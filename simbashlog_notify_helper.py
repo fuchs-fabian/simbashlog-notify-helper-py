@@ -11,6 +11,14 @@ from datetime import datetime
 from enum import Enum
 from typing import Optional, Tuple, Type
 
+# ░░░░░░░░░░░░░░░░░░░░░▓▓▓░░░░░░░░░░░░░░░░░░░░░░
+# ░░                                          ░░
+# ░░                                          ░░
+# ░░                SEVERITY                  ░░
+# ░░                                          ░░
+# ░░                                          ░░
+# ░░░░░░░░░░░░░░░░░░░░░▓▓▓░░░░░░░░░░░░░░░░░░░░░░
+
 class Severity(Enum):
     '''
     Enum to represent the severity levels of log messages based on [RFC 5424](https://tools.ietf.org/html/rfc5424) [Page 11]:
@@ -195,6 +203,14 @@ class Severity(Enum):
     def __str__(self):
         return self.name
 
+# ░░░░░░░░░░░░░░░░░░░░░▓▓▓░░░░░░░░░░░░░░░░░░░░░░
+# ░░                                          ░░
+# ░░                                          ░░
+# ░░                LOG FIELD                 ░░
+# ░░                                          ░░
+# ░░                                          ░░
+# ░░░░░░░░░░░░░░░░░░░░░▓▓▓░░░░░░░░░░░░░░░░░░░░░░
+
 class LogField(Enum):
     '''
     Enum to represent the fields for a log entry.
@@ -220,6 +236,14 @@ class LogField(Enum):
 
     def __str__(self):
         return self.value
+
+# ░░░░░░░░░░░░░░░░░░░░░▓▓▓░░░░░░░░░░░░░░░░░░░░░░
+# ░░                                          ░░
+# ░░                                          ░░
+# ░░             DATAFRAME FIELD              ░░
+# ░░                                          ░░
+# ░░                                          ░░
+# ░░░░░░░░░░░░░░░░░░░░░▓▓▓░░░░░░░░░░░░░░░░░░░░░░
 
 '''
 Enum to represent all possible fields in a DataFrame:
@@ -252,6 +276,14 @@ DataFrameField = Enum(
 )
 
 DataFrameField.__str__ = lambda self: self.value
+
+# ░░░░░░░░░░░░░░░░░░░░░▓▓▓░░░░░░░░░░░░░░░░░░░░░░
+# ░░                                          ░░
+# ░░                                          ░░
+# ░░             STORED LOG INFO              ░░
+# ░░                                          ░░
+# ░░                                          ░░
+# ░░░░░░░░░░░░░░░░░░░░░▓▓▓░░░░░░░░░░░░░░░░░░░░░░
 
 class StoredLogInfo:
     '''
@@ -512,6 +544,14 @@ class StoredLogInfo:
                 f"Log Data (max. first {number_of_first_df_rows_to_show} rows):\n{df_for_log_data if df_for_log_data else 'No log data available'}\n\n"
                 f"Summary Data (max. first {number_of_first_df_rows_to_show} rows):\n{df_for_summary_data if df_for_summary_data else 'No summary data available'}")
 
+# ░░░░░░░░░░░░░░░░░░░░░▓▓▓░░░░░░░░░░░░░░░░░░░░░░
+# ░░                                          ░░
+# ░░                                          ░░
+# ░░            (NOTIFIER) CONFIG             ░░
+# ░░                                          ░░
+# ░░                                          ░░
+# ░░░░░░░░░░░░░░░░░░░░░▓▓▓░░░░░░░░░░░░░░░░░░░░░░
+
 def get_config_data(path: str, enum_class_for_config_fields: Type[Enum]) -> dict:
     '''
     Retrieves the configuration data from a specified path.
@@ -592,6 +632,14 @@ class NotifierConfig:
         '''
         return get_config_data(cls.get_path(notifier_name), enum_class_for_config_fields)
 
+# ░░░░░░░░░░░░░░░░░░░░░▓▓▓░░░░░░░░░░░░░░░░░░░░░░
+# ░░                                          ░░
+# ░░                                          ░░
+# ░░          GET / PROCESS ARGUMENTS         ░░
+# ░░                                          ░░
+# ░░                                          ░░
+# ░░░░░░░░░░░░░░░░░░░░░▓▓▓░░░░░░░░░░░░░░░░░░░░░░
+
 def process_arguments() -> StoredLogInfo:
     '''
     Processes the command-line arguments for a `simbashlog`-notifier.
@@ -625,6 +673,14 @@ def process_arguments() -> StoredLogInfo:
 
     return stored_log_info
 
+# ░░░░░░░░░░░░░░░░░░░░░▓▓▓░░░░░░░░░░░░░░░░░░░░░░
+# ░░                                          ░░
+# ░░                                          ░░
+# ░░             OUTPUT HANDLING              ░░
+# ░░                                          ░░
+# ░░                                          ░░
+# ░░░░░░░░░░░░░░░░░░░░░▓▓▓░░░░░░░░░░░░░░░░░░░░░░
+
 @contextmanager
 def suppress_output():
     '''
@@ -646,6 +702,14 @@ def suppress_output():
         finally:
             sys.stdout = old_stdout # Restore stdout
             sys.stderr = old_stderr # Restore stderr
+
+# ░░░░░░░░░░░░░░░░░░░░░▓▓▓░░░░░░░░░░░░░░░░░░░░░░
+# ░░                                          ░░
+# ░░                                          ░░
+# ░░      UNEXPECTED EXCEPTION HANDLING       ░░
+# ░░                                          ░░
+# ░░                                          ░░
+# ░░░░░░░░░░░░░░░░░░░░░▓▓▓░░░░░░░░░░░░░░░░░░░░░░
 
 def handle_unexpected_exceptions(func, *args):
     '''
@@ -695,6 +759,14 @@ def unexpected_exception_handler(func):
     def wrapper(*args, **kwargs):
         return handle_unexpected_exceptions(func, *args, **kwargs)
     return wrapper
+
+# ░░░░░░░░░░░░░░░░░░░░░▓▓▓░░░░░░░░░░░░░░░░░░░░░░
+# ░░                                          ░░
+# ░░                                          ░░
+# ░░                 HELPER                   ░░
+# ░░                                          ░░
+# ░░                                          ░░
+# ░░░░░░░░░░░░░░░░░░░░░▓▓▓░░░░░░░░░░░░░░░░░░░░░░
 
 class Helper:
     '''
@@ -786,6 +858,14 @@ class Helper:
         
         def __str__(self):
             return self.unicode
+
+# ░░░░░░░░░░░░░░░░░░░░░▓▓▓░░░░░░░░░░░░░░░░░░░░░░
+# ░░                                          ░░
+# ░░                                          ░░
+# ░░             MESSAGE BUILDER              ░░
+# ░░                                          ░░
+# ░░                                          ░░
+# ░░░░░░░░░░░░░░░░░░░░░▓▓▓░░░░░░░░░░░░░░░░░░░░░░
 
 class MessageBuilder:
     '''
@@ -1022,6 +1102,14 @@ class MessageBuilder:
         return (
             "\n".join(self.message_parts)
         ).strip()
+
+# ░░░░░░░░░░░░░░░░░░░░░▓▓▓░░░░░░░░░░░░░░░░░░░░░░
+# ░░                                          ░░
+# ░░                                          ░░
+# ░░                  MAIN                    ░░
+# ░░                                          ░░
+# ░░                                          ░░
+# ░░░░░░░░░░░░░░░░░░░░░▓▓▓░░░░░░░░░░░░░░░░░░░░░░
 
 if __name__ == "__main__":
     process_arguments()
