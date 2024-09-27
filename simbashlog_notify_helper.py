@@ -930,23 +930,25 @@ class MessageBuilder:
         Returns:
             MessageBuilder: The updated message builder.
         '''
-        head_parts = []
+        header_parts = []
 
         if self.stored_log_info.message and self.stored_log_info.log_level:
             try:
                 severity = Severity.get_by_code(self.stored_log_info.log_level)
-                head_parts.append(f"{severity.unicode}  {severity.rfc_5424_severity}: {self.stored_log_info.message}")
+                header_parts.append(f"{severity.unicode}  {severity.rfc_5424_severity}: {self.stored_log_info.message}")
             except Exception as e:
                 print(f"An error occurred while trying to get the severity by code: '{e}'")
                 sys.exit(1)
+        elif self.stored_log_info.message:
+            header_parts.append(self.stored_log_info.message)
         elif self.stored_log_info.log_level:
-            head_parts.append(f"Log Level: {Helper.Unicode.get_representation_for_number(self.stored_log_info.log_level)}")
+            header_parts.append(f"Log Level: {Helper.Unicode.get_representation_for_number(self.stored_log_info.log_level)}")
 
         if show_pid and self.stored_log_info.pid is not None:
-            head_parts.append(f"{Helper.Emoji.PID.unicode}  {self.stored_log_info.pid}")
+            header_parts.append(f"{Helper.Emoji.PID.unicode}  {self.stored_log_info.pid}")
 
         self.message_parts.append(
-            ((self.apply_heading("\n".join(head_parts))) if head_parts else "").strip()
+            ((self.apply_heading("\n".join(header_parts))) if header_parts else "").strip()
         )
         return self
 
@@ -969,9 +971,13 @@ class MessageBuilder:
         Returns:
             MessageBuilder: The updated message builder.
         '''
-        content_parts = []
+        body_parts = []
 
-        number_of_log_entries = self.stored_log_info.get_number_of_log_entries()
+        try:
+            number_of_log_entries = self.stored_log_info.get_number_of_log_entries()
+        except Exception as e:
+            print(f"An error occurred while trying to get the number of log entries: '{e}'")
+            return self
 
         if self.stored_log_info.data_df is not None and (show_log_file_result or show_log_file_content):
             number_of_unique_pids = self.stored_log_info.get_number_of_unique_pids()
@@ -982,7 +988,7 @@ class MessageBuilder:
                     max_severity = self.stored_log_info.get_highest_severity()
                     if max_severity:
                         count_display = f"  {number_of_log_entries_for_current_severity}x:" if number_of_unique_pids == 1 else ""
-                        content_parts.append(
+                        body_parts.append(
                             self.apply_subheading(f"{Helper.Emoji.RESULT.unicode}{count_display}  {max_severity.unicode}  {max_severity.rfc_5424_severity.upper()}")
                             )
                 except Exception as e:
@@ -990,16 +996,16 @@ class MessageBuilder:
 
             if show_log_file_content:
                 try:
-                    content_parts_for_log_file_content = []
+                    parts_for_log_file_content = []
                     summarized_log_entries_df = self.stored_log_info.get_summarized_log_entries_df()
 
                     for _, row in summarized_log_entries_df.iterrows():
                         level = row[LogField.LEVEL.value]
                         message = row[LogField.MESSAGE.value]
                         count = row[DataFrameField.COUNT.value]
-                        content_parts_for_log_file_content.append(self.apply_paragraph(f"{Severity.get_by_name(level).unicode} {count}x: {self.apply_bold(self.apply_italic(message))}"))
+                        parts_for_log_file_content.append(self.apply_paragraph(f"{Severity.get_by_name(level).unicode} {count}x: {self.apply_bold(self.apply_italic(message))}"))
 
-                    content_parts.append("".join(content_parts_for_log_file_content))
+                    body_parts.append(''.join(parts_for_log_file_content))
                 except Exception as e:
                     print(f"An error occurred while trying to get the summarized log entries: '{e}'")
 
@@ -1039,12 +1045,12 @@ class MessageBuilder:
             else:
                 _add_summary_parts_for_pid_and_log_file()
 
-            content_parts.append(
+            body_parts.append(
                 ''.join([f"\n{Helper.Emoji.SUMMARY.unicode} {part}" for part in summary_parts])
             )
 
         self.message_parts.append(
-            ("\n".join(content_parts)).strip()
+            ("\n".join(body_parts)).strip()
         )
         return self
 
@@ -1065,12 +1071,12 @@ class MessageBuilder:
         Returns:
             MessageBuilder: The updated message builder.
         '''
-        tail_parts = []
+        footer_parts = []
 
         if show_log_file_names:
-            add_log_file_name = lambda log_file_path: tail_parts.append(self.apply_code(log_file_path)) if log_file_path else None
-            add_log_file_name(self.stored_log_info.log_file)
-            add_log_file_name(self.stored_log_info.json_log_file)
+            add_log_file_name_to_footer_parts = lambda log_file_path: footer_parts.append(self.apply_code(log_file_path)) if log_file_path else None
+            add_log_file_name_to_footer_parts(self.stored_log_info.log_file)
+            add_log_file_name_to_footer_parts(self.stored_log_info.json_log_file)
 
         host_name = os.uname().nodename
 
@@ -1081,14 +1087,14 @@ class MessageBuilder:
             )
             if show_host:
                 host_info = f"{Helper.Emoji.HOST.unicode}  {host_name}"
-                tail_parts.append(f"{host_info}   |   {styled_notifier_name}" if styled_notifier_name else host_info)
-            elif styled_notifier_name:
-                tail_parts.append(styled_notifier_name)
+                footer_parts.append(f"{host_info}   |   {styled_notifier_name}" if styled_notifier_name else host_info)
+            else:
+                footer_parts.append(styled_notifier_name)
         elif show_host:
-            tail_parts.append(f"{Helper.Emoji.HOST.unicode}  {host_name}")
+            footer_parts.append(f"{Helper.Emoji.HOST.unicode}  {host_name}")
 
         self.message_parts.append(
-            ("\n".join(tail_parts)).strip() if tail_parts else ""
+            ("\n".join(footer_parts)).strip() if footer_parts else ""
         )
         return self
 
