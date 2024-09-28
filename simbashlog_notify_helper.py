@@ -971,83 +971,84 @@ class MessageBuilder:
         Returns:
             MessageBuilder: The updated message builder.
         '''
-        body_parts = []
-
-        try:
-            number_of_log_entries = self.stored_log_info.get_number_of_log_entries()
-        except Exception as e:
-            print(f"An error occurred while trying to get the number of log entries: '{e}'")
+        if self.stored_log_info.data_df is None:
+            self.message_parts.append(self.apply_paragraph("No log data available"))
             return self
 
-        if self.stored_log_info.data_df is not None and (show_log_file_result or show_log_file_content):
-            number_of_unique_pids = self.stored_log_info.get_number_of_unique_pids()
-            number_of_log_entries_for_current_severity = self.stored_log_info.get_number_of_log_entries_by_severity(Severity.get_by_code(self.stored_log_info.log_level))
+        body_parts = []
 
-            if show_log_file_result:
-                try:
-                    max_severity = self.stored_log_info.get_highest_severity()
-                    if max_severity:
-                        count_display = f"  {number_of_log_entries_for_current_severity}x:" if number_of_unique_pids == 1 else ""
-                        body_parts.append(
-                            self.apply_subheading(f"{Helper.Emoji.RESULT.unicode}{count_display}  {max_severity.unicode}  {max_severity.rfc_5424_severity.upper()}")
-                            )
-                except Exception as e:
-                    print(f"An error occurred while trying to get the highest severity: {e}")
+        if show_log_file_result:
+            try:
+                number_of_unique_pids = self.stored_log_info.get_number_of_unique_pids()
+                number_of_log_entries_for_current_severity = self.stored_log_info.get_number_of_log_entries_by_severity(Severity.get_by_code(self.stored_log_info.log_level))
+                max_severity = self.stored_log_info.get_highest_severity()
 
-            if show_log_file_content:
-                try:
-                    parts_for_log_file_content = []
-                    summarized_log_entries_df = self.stored_log_info.get_summarized_log_entries_df()
+                if max_severity:
+                    count_display = f"  {number_of_log_entries_for_current_severity}x:" if number_of_unique_pids == 1 else ""
+                    body_parts.append(
+                        self.apply_subheading(f"{Helper.Emoji.RESULT.unicode}{count_display}  {max_severity.unicode}  {max_severity.rfc_5424_severity.upper()}")
+                        )
+            except Exception as e:
+                print(f"An error occurred while trying to determine the log file result: '{e}'")
 
-                    for _, row in summarized_log_entries_df.iterrows():
-                        level = row[LogField.LEVEL.value]
-                        message = row[LogField.MESSAGE.value]
-                        count = row[DataFrameField.COUNT.value]
-                        parts_for_log_file_content.append(self.apply_paragraph(f"{Severity.get_by_name(level).unicode} {count}x: {self.apply_bold(self.apply_italic(message))}"))
+        if show_log_file_content:
+            try:
+                parts_for_log_file_content = []
+                summarized_log_entries_df = self.stored_log_info.get_summarized_log_entries_df()
 
-                    body_parts.append(''.join(parts_for_log_file_content))
-                except Exception as e:
-                    print(f"An error occurred while trying to get the summarized log entries: '{e}'")
+                for _, row in summarized_log_entries_df.iterrows():
+                    level = row[LogField.LEVEL.value]
+                    message = row[LogField.MESSAGE.value]
+                    count = row[DataFrameField.COUNT.value]
+                    parts_for_log_file_content.append(self.apply_paragraph(f"{Severity.get_by_name(level).unicode} {count}x: {self.apply_bold(self.apply_italic(message))}"))
+
+                body_parts.append(''.join(parts_for_log_file_content))
+            except Exception as e:
+                print(f"An error occurred while trying to determine the log file content: '{e}'")
 
         if self.stored_log_info.summary_df is not None and (show_summary_for_log_file or show_summary_for_pid):
-            summary_parts = []
+            try:   
+                summary_parts = []
 
-            summary_df_for_current_pid = self.stored_log_info.summary_df[self.stored_log_info.summary_df[LogField.PID.value].astype(int) == self.stored_log_info.pid]
-            number_of_log_entries_for_current_pid = len(summary_df_for_current_pid)
+                number_of_log_entries = self.stored_log_info.get_number_of_log_entries()
+                summary_df_for_current_pid = self.stored_log_info.summary_df[self.stored_log_info.summary_df[LogField.PID.value].astype(int) == self.stored_log_info.pid]
+                number_of_log_entries_for_current_pid = len(summary_df_for_current_pid)
 
-            def _get_pretty_summary(df) -> str:
-                return "".join(
-                    self.apply_paragraph(f"  {Severity.get_by_name(severity).unicode} {Severity.get_by_name(severity).rfc_5424_severity}: {count}")
-                    for severity, count in df.drop(columns=LogField.PID.value).sum().items() if count > 0
-                )
-
-            def _add_summary_parts_for_pid_and_log_file():
-                if show_summary_for_pid and self.stored_log_info.pid is not None:
-                    summary_parts.append(
-                        f"{Helper.Emoji.PID.unicode} (Logs: {number_of_log_entries_for_current_pid}/{number_of_log_entries}):"
-                        f"{_get_pretty_summary(summary_df_for_current_pid)}"
+                def _get_pretty_summary(df) -> str:
+                    return ''.join(
+                        self.apply_paragraph(f"  {Severity.get_by_name(severity).unicode} {Severity.get_by_name(severity).rfc_5424_severity}: {count}")
+                        for severity, count in df.drop(columns=LogField.PID.value).sum().items() if count > 0
                     )
 
-                if show_summary_for_log_file:
-                    summary_parts.append(
-                        f"{Helper.Emoji.LOG_FILE.unicode} (Logs: {number_of_log_entries}):"
-                        f"{_get_pretty_summary(self.stored_log_info.summary_df)}"
-                    )
+                def _add_summary_parts_for_pid_and_log_file():
+                    if show_summary_for_pid and self.stored_log_info.pid is not None:
+                        summary_parts.append(
+                            f"{Helper.Emoji.PID.unicode} (Logs: {number_of_log_entries_for_current_pid}/{number_of_log_entries}):"
+                            f"{_get_pretty_summary(summary_df_for_current_pid)}"
+                        )
 
-            if show_summary_for_log_file and show_summary_for_pid and self.stored_log_info.pid is not None:
-                if number_of_log_entries_for_current_pid == number_of_log_entries:
-                    summary_parts.append(
-                        f"{Helper.Emoji.LOG_FILE.unicode} {Helper.Emoji.PID.unicode} (Logs: {number_of_log_entries}):"
-                        f"{_get_pretty_summary(self.stored_log_info.summary_df)}"
-                    )
+                    if show_summary_for_log_file:
+                        summary_parts.append(
+                            f"{Helper.Emoji.LOG_FILE.unicode} (Logs: {number_of_log_entries}):"
+                            f"{_get_pretty_summary(self.stored_log_info.summary_df)}"
+                        )
+
+                if show_summary_for_log_file and show_summary_for_pid and self.stored_log_info.pid is not None:
+                    if number_of_log_entries_for_current_pid == number_of_log_entries:
+                        summary_parts.append(
+                            f"{Helper.Emoji.LOG_FILE.unicode} {Helper.Emoji.PID.unicode} (Logs: {number_of_log_entries}):"
+                            f"{_get_pretty_summary(self.stored_log_info.summary_df)}"
+                        )
+                    else:
+                        _add_summary_parts_for_pid_and_log_file()
                 else:
                     _add_summary_parts_for_pid_and_log_file()
-            else:
-                _add_summary_parts_for_pid_and_log_file()
 
-            body_parts.append(
-                ''.join([f"\n{Helper.Emoji.SUMMARY.unicode} {part}" for part in summary_parts])
-            )
+                body_parts.append(
+                    ''.join([f"\n{Helper.Emoji.SUMMARY.unicode} {part}" for part in summary_parts])
+                )
+            except Exception as e:
+                print(f"An error occurred while trying to determine the summary/summaries: '{e}'")
 
         self.message_parts.append(
             ("\n".join(body_parts)).strip()
