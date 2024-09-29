@@ -22,8 +22,8 @@
   <a href="https://github.com/fuchs-fabian/simbashlog-notify-helper-py/blob/main/examples/example.py">
     <img alt="Example" src="https://img.shields.io/website?down_message=offline&label=example&up_color=007aff&up_message=online&url=https%3A%2F%2Fgithub.com%2Ffuchs-fabian%2Fsimbashlog-notify-helper-py%2Fblob%2Fmain%2Fexamples%2Fexample.py" />
   </a>
-  <a href="https://github.com/fuchs-fabian/simbashlog-notify-helper-py/blob/main/template">
-    <img alt="Template" src="https://img.shields.io/website?down_message=offline&label=template&up_color=007aff&up_message=online&url=https%3A%2F%2Fgithub.com%2Ffuchs-fabian%2Fsimbashlog-notify-helper-py%2Fblob%2Fmain%2Ftemplate" />
+  <a href="https://github.com/fuchs-fabian/simbashlog-example-notifier">
+    <img alt="Template" src="https://img.shields.io/website?down_message=offline&label=template&up_color=007aff&up_message=online&url=https%3A%2F%2Fgithub.com%2Ffuchs-fabian%2Fsimbashlog-example-notifier" />
   </a>
 </p>
 
