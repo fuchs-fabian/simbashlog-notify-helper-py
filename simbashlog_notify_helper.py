@@ -975,7 +975,7 @@ class MessageBuilder:
                 show_summary_for_log_file or
                 show_summary_for_pid
             ):
-            self.message_parts.append(self.apply_paragraph("No log data available"))
+            self.message_parts.append(self.apply_paragraph(self.apply_bold(self.apply_italic("No log data available"))))
             return self
 
         body_parts = []
