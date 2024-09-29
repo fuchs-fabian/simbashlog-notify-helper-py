@@ -11,6 +11,14 @@ from datetime import datetime
 from enum import Enum
 from typing import Optional, Tuple, Type
 
+# ░░░░░░░░░░░░░░░░░░░░░▓▓▓░░░░░░░░░░░░░░░░░░░░░░
+# ░░                                          ░░
+# ░░                                          ░░
+# ░░                SEVERITY                  ░░
+# ░░                                          ░░
+# ░░                                          ░░
+# ░░░░░░░░░░░░░░░░░░░░░▓▓▓░░░░░░░░░░░░░░░░░░░░░░
+
 class Severity(Enum):
     '''
     Enum to represent the severity levels of log messages based on [RFC 5424](https://tools.ietf.org/html/rfc5424) [Page 11]:
@@ -69,56 +77,56 @@ class Severity(Enum):
         "System is unusable",
         "🚑",
         "\U0001F691"
-        )
+    )
     ALERT = (
         1,
         "Alert",
         "Action must be taken immediately",
         "🚨",
         "\U0001F6A8"
-        )
+    )
     CRIT = (
         2,
         "Critical",
         "Critical conditions",
         "🔥",
         "\U0001F525"
-        )
+    )
     ERROR = (
         3,
         "Error",
         "Error conditions",
         "❗",
         "\u2757"
-        )
+    )
     WARN = (
         4,
         "Warning",
         "Warning conditions",
         "⚠️",
         "\u26A0\uFE0F"
-        )
+    )
     NOTICE = (
         5,
         "Notice",
         "Normal but significant condition",
         "📝",
         "\U0001F4DD"
-        )
+    )
     INFO = (
         6,
         "Informational",
         "Informational messages",
         "ℹ️",
         "\u2139\uFE0F"
-        )
+    )
     DEBUG = (
         7,
         "Debug",
         "Debug-level messages",
         "🔍",
         "\U0001F50D"
-        )
+    )
 
     def __init__(
             self,
@@ -127,7 +135,7 @@ class Severity(Enum):
             rfc_5424_description: str,
             emoji: str,
             unicode: str
-            ):
+        ):
         self._rfc_5424_numerical_code = rfc_5424_numerical_code
         self._rfc_5424_severity = rfc_5424_severity
         self._rfc_5424_description = rfc_5424_description
@@ -195,6 +203,14 @@ class Severity(Enum):
     def __str__(self):
         return self.name
 
+# ░░░░░░░░░░░░░░░░░░░░░▓▓▓░░░░░░░░░░░░░░░░░░░░░░
+# ░░                                          ░░
+# ░░                                          ░░
+# ░░                LOG FIELD                 ░░
+# ░░                                          ░░
+# ░░                                          ░░
+# ░░░░░░░░░░░░░░░░░░░░░▓▓▓░░░░░░░░░░░░░░░░░░░░░░
+
 class LogField(Enum):
     '''
     Enum to represent the fields for a log entry.
@@ -220,6 +236,14 @@ class LogField(Enum):
 
     def __str__(self):
         return self.value
+
+# ░░░░░░░░░░░░░░░░░░░░░▓▓▓░░░░░░░░░░░░░░░░░░░░░░
+# ░░                                          ░░
+# ░░                                          ░░
+# ░░             DATAFRAME FIELD              ░░
+# ░░                                          ░░
+# ░░                                          ░░
+# ░░░░░░░░░░░░░░░░░░░░░▓▓▓░░░░░░░░░░░░░░░░░░░░░░
 
 '''
 Enum to represent all possible fields in a DataFrame:
@@ -252,6 +276,14 @@ DataFrameField = Enum(
 )
 
 DataFrameField.__str__ = lambda self: self.value
+
+# ░░░░░░░░░░░░░░░░░░░░░▓▓▓░░░░░░░░░░░░░░░░░░░░░░
+# ░░                                          ░░
+# ░░                                          ░░
+# ░░             STORED LOG INFO              ░░
+# ░░                                          ░░
+# ░░                                          ░░
+# ░░░░░░░░░░░░░░░░░░░░░▓▓▓░░░░░░░░░░░░░░░░░░░░░░
 
 class StoredLogInfo:
     '''
@@ -512,6 +544,14 @@ class StoredLogInfo:
                 f"Log Data (max. first {number_of_first_df_rows_to_show} rows):\n{df_for_log_data if df_for_log_data else 'No log data available'}\n\n"
                 f"Summary Data (max. first {number_of_first_df_rows_to_show} rows):\n{df_for_summary_data if df_for_summary_data else 'No summary data available'}")
 
+# ░░░░░░░░░░░░░░░░░░░░░▓▓▓░░░░░░░░░░░░░░░░░░░░░░
+# ░░                                          ░░
+# ░░                                          ░░
+# ░░            (NOTIFIER) CONFIG             ░░
+# ░░                                          ░░
+# ░░                                          ░░
+# ░░░░░░░░░░░░░░░░░░░░░▓▓▓░░░░░░░░░░░░░░░░░░░░░░
+
 def get_config_data(path: str, enum_class_for_config_fields: Type[Enum]) -> dict:
     '''
     Retrieves the configuration data from a specified path.
@@ -592,6 +632,14 @@ class NotifierConfig:
         '''
         return get_config_data(cls.get_path(notifier_name), enum_class_for_config_fields)
 
+# ░░░░░░░░░░░░░░░░░░░░░▓▓▓░░░░░░░░░░░░░░░░░░░░░░
+# ░░                                          ░░
+# ░░                                          ░░
+# ░░          GET / PROCESS ARGUMENTS         ░░
+# ░░                                          ░░
+# ░░                                          ░░
+# ░░░░░░░░░░░░░░░░░░░░░▓▓▓░░░░░░░░░░░░░░░░░░░░░░
+
 def process_arguments() -> StoredLogInfo:
     '''
     Processes the command-line arguments for a `simbashlog`-notifier.
@@ -625,6 +673,14 @@ def process_arguments() -> StoredLogInfo:
 
     return stored_log_info
 
+# ░░░░░░░░░░░░░░░░░░░░░▓▓▓░░░░░░░░░░░░░░░░░░░░░░
+# ░░                                          ░░
+# ░░                                          ░░
+# ░░             OUTPUT HANDLING              ░░
+# ░░                                          ░░
+# ░░                                          ░░
+# ░░░░░░░░░░░░░░░░░░░░░▓▓▓░░░░░░░░░░░░░░░░░░░░░░
+
 @contextmanager
 def suppress_output():
     '''
@@ -646,6 +702,14 @@ def suppress_output():
         finally:
             sys.stdout = old_stdout # Restore stdout
             sys.stderr = old_stderr # Restore stderr
+
+# ░░░░░░░░░░░░░░░░░░░░░▓▓▓░░░░░░░░░░░░░░░░░░░░░░
+# ░░                                          ░░
+# ░░                                          ░░
+# ░░      UNEXPECTED EXCEPTION HANDLING       ░░
+# ░░                                          ░░
+# ░░                                          ░░
+# ░░░░░░░░░░░░░░░░░░░░░▓▓▓░░░░░░░░░░░░░░░░░░░░░░
 
 def handle_unexpected_exceptions(func, *args):
     '''
@@ -696,6 +760,14 @@ def unexpected_exception_handler(func):
         return handle_unexpected_exceptions(func, *args, **kwargs)
     return wrapper
 
+# ░░░░░░░░░░░░░░░░░░░░░▓▓▓░░░░░░░░░░░░░░░░░░░░░░
+# ░░                                          ░░
+# ░░                                          ░░
+# ░░                 HELPER                   ░░
+# ░░                                          ░░
+# ░░                                          ░░
+# ░░░░░░░░░░░░░░░░░░░░░▓▓▓░░░░░░░░░░░░░░░░░░░░░░
+
 class Helper:
     '''
     A helper class for various tasks.
@@ -744,27 +816,27 @@ class Helper:
         NOTIFIER = (
             "🤖",
             "\U0001F916"
-            )
+        )
         HOST = (
             "🌐",
             "\U0001F310"
-            )
+        )
         LOG_FILE = (
             "📄",
             "\U0001F4C4"
-            )
+        )
         PID = (
             "🆔",
             "\U0001F194"
-            )
+        )
         SUMMARY = (
             "📈",
             "\U0001F4C8"
-            )
+        )
         RESULT = (
             "🎯",
             "\U0001F3AF"
-            )
+        )
 
         def __init__(self, emoji, unicode):
             self._emoji = emoji
@@ -786,6 +858,268 @@ class Helper:
         
         def __str__(self):
             return self.unicode
+
+# ░░░░░░░░░░░░░░░░░░░░░▓▓▓░░░░░░░░░░░░░░░░░░░░░░
+# ░░                                          ░░
+# ░░                                          ░░
+# ░░             MESSAGE BUILDER              ░░
+# ░░                                          ░░
+# ░░                                          ░░
+# ░░░░░░░░░░░░░░░░░░░░░▓▓▓░░░░░░░░░░░░░░░░░░░░░░
+
+class MessageBuilder:
+    '''
+    A class to build a message for a `simbashlog`-notifier.
+
+    Attributes:
+        stored_log_info (StoredLogInfo):
+            The stored log information.
+        notifier_name (str):
+            The name of the notifier.
+        apply_heading (function):
+            The function to apply a heading style to the content.
+        apply_subheading (function):
+            The function to apply a subheading style to the content.
+        apply_paragraph (function):
+            The function to apply a paragraph style to the content.
+        apply_code (function):
+            The function to apply a code style to the content.
+        apply_bold (function):
+            The function to apply a bold style to the content.
+        apply_italic (function):
+            The function to apply an italic style to the content.
+
+    Example:
+        >>> stored_log_info = StoredLogInfo()
+        >>> message_builder = MessageBuilder(stored_log_info, "Notifier Name")
+        >>> message_builder.add_header(show_pid=True).add_body(show_log_file_result=True, show_log_file_content=True).add_footer(show_log_file_names=True, show_host=True, show_notifier_name=True).build()
+    '''
+    def __init__(
+            self, 
+            stored_log_info: StoredLogInfo,
+            notifier_name: str,
+            apply_heading = lambda content: f"{content}",
+            apply_subheading = lambda content: f"\n{content}\n",
+            apply_paragraph = lambda content: f"\n{content}\n",
+            apply_code = lambda content: f"\n{content}\n",
+            apply_bold = lambda content: f"{content}",
+            apply_italic = lambda content: f"{content}"
+        ):
+        self.stored_log_info = stored_log_info
+        self.notifier_name = notifier_name
+        self.apply_heading = apply_heading
+        self.apply_subheading = apply_subheading
+        self.apply_paragraph = apply_paragraph
+        self.apply_code = apply_code
+        self.apply_bold = apply_bold
+        self.apply_italic = apply_italic
+
+        self.message_parts = []
+
+    def add_header(
+            self,
+            show_pid: bool = False
+        ):
+        '''
+        Adds the header of the message.
+
+        Args:
+            show_pid (bool): Whether to show the process ID.
+
+        Returns:
+            MessageBuilder: The updated message builder.
+        '''
+        header_parts = []
+
+        if self.stored_log_info.message and self.stored_log_info.log_level:
+            try:
+                severity = Severity.get_by_code(self.stored_log_info.log_level)
+                header_parts.append(f"{severity.unicode}  {severity.rfc_5424_severity}: {self.stored_log_info.message}")
+            except Exception as e:
+                print(f"An error occurred while trying to get the severity by code: '{e}'")
+        elif self.stored_log_info.message:
+            header_parts.append(self.stored_log_info.message)
+        elif self.stored_log_info.log_level:
+            header_parts.append(f"Log Level: {Helper.Unicode.get_representation_for_number(self.stored_log_info.log_level)}")
+
+        if show_pid and self.stored_log_info.pid is not None:
+            header_parts.append(f"{Helper.Emoji.PID.unicode}  {self.stored_log_info.pid}")
+
+        self.message_parts.append(
+            ((self.apply_heading("\n".join(header_parts))) if header_parts else "").strip()
+        )
+        return self
+
+    def add_body(
+            self,
+            show_log_file_result: bool = False,
+            show_log_file_content: bool = False,
+            show_summary_for_pid: bool = False,
+            show_summary_for_log_file: bool = False
+        ):
+        '''
+        Adds the body of the message.
+
+        Args:
+            show_log_file_result (bool): Whether to show the result of the log file.
+            show_log_file_content (bool): Whether to show the content of the log file.
+            show_summary_for_pid (bool): Whether to show the summary for the PID.
+            show_summary_for_log_file (bool): Whether to show the summary for the log file.
+
+        Returns:
+            MessageBuilder: The updated message builder.
+        '''
+        if self.stored_log_info.data_df is None and (
+                show_log_file_result or
+                show_log_file_content or
+                show_summary_for_log_file or
+                show_summary_for_pid
+            ):
+            self.message_parts.append(self.apply_paragraph(self.apply_bold(self.apply_italic("No log data available"))))
+            return self
+
+        body_parts = []
+
+        if show_log_file_result:
+            try:
+                number_of_unique_pids = self.stored_log_info.get_number_of_unique_pids()
+                number_of_log_entries_for_current_severity = self.stored_log_info.get_number_of_log_entries_by_severity(Severity.get_by_code(self.stored_log_info.log_level))
+                max_severity = self.stored_log_info.get_highest_severity()
+
+                if max_severity:
+                    count_display = f"  {number_of_log_entries_for_current_severity}x:" if number_of_unique_pids == 1 else ""
+                    body_parts.append(
+                        self.apply_subheading(f"{Helper.Emoji.RESULT.unicode}{count_display}  {max_severity.unicode}  {max_severity.rfc_5424_severity.upper()}")
+                        )
+            except Exception as e:
+                print(f"An error occurred while trying to determine the log file result: '{e}'")
+
+        if show_log_file_content:
+            try:
+                parts_for_log_file_content = []
+                summarized_log_entries_df = self.stored_log_info.get_summarized_log_entries_df()
+
+                for _, row in summarized_log_entries_df.iterrows():
+                    level = row[LogField.LEVEL.value]
+                    message = row[LogField.MESSAGE.value]
+                    count = row[DataFrameField.COUNT.value]
+                    parts_for_log_file_content.append(self.apply_paragraph(f"{Severity.get_by_name(level).unicode} {count}x: {self.apply_bold(self.apply_italic(message))}"))
+
+                body_parts.append(''.join(parts_for_log_file_content))
+            except Exception as e:
+                print(f"An error occurred while trying to determine the log file content: '{e}'")
+
+        if self.stored_log_info.summary_df is not None and (show_summary_for_log_file or show_summary_for_pid):
+            try:   
+                summary_parts = []
+
+                number_of_log_entries = self.stored_log_info.get_number_of_log_entries()
+                summary_df_for_current_pid = self.stored_log_info.summary_df[self.stored_log_info.summary_df[LogField.PID.value].astype(int) == self.stored_log_info.pid]
+                number_of_log_entries_for_current_pid = len(summary_df_for_current_pid)
+
+                def _get_pretty_summary(df) -> str:
+                    return ''.join(
+                        self.apply_paragraph(f"  {Severity.get_by_name(severity).unicode} {Severity.get_by_name(severity).rfc_5424_severity}: {count}")
+                        for severity, count in df.drop(columns=LogField.PID.value).sum().items() if count > 0
+                    )
+
+                def _add_summary_parts_for_pid_and_log_file():
+                    if show_summary_for_pid and self.stored_log_info.pid is not None:
+                        summary_parts.append(
+                            f"{Helper.Emoji.PID.unicode} (Logs: {number_of_log_entries_for_current_pid}/{number_of_log_entries}):"
+                            f"{_get_pretty_summary(summary_df_for_current_pid)}"
+                        )
+
+                    if show_summary_for_log_file:
+                        summary_parts.append(
+                            f"{Helper.Emoji.LOG_FILE.unicode} (Logs: {number_of_log_entries}):"
+                            f"{_get_pretty_summary(self.stored_log_info.summary_df)}"
+                        )
+
+                if show_summary_for_log_file and show_summary_for_pid and self.stored_log_info.pid is not None:
+                    if number_of_log_entries_for_current_pid == number_of_log_entries:
+                        summary_parts.append(
+                            f"{Helper.Emoji.LOG_FILE.unicode} {Helper.Emoji.PID.unicode} (Logs: {number_of_log_entries}):"
+                            f"{_get_pretty_summary(self.stored_log_info.summary_df)}"
+                        )
+                    else:
+                        _add_summary_parts_for_pid_and_log_file()
+                else:
+                    _add_summary_parts_for_pid_and_log_file()
+
+                body_parts.append(
+                    ''.join([f"\n{Helper.Emoji.SUMMARY.unicode} {part}" for part in summary_parts])
+                )
+            except Exception as e:
+                print(f"An error occurred while trying to determine the summary/summaries: '{e}'")
+
+        self.message_parts.append(
+            ("\n".join(body_parts)).strip()
+        )
+        return self
+
+    def add_footer(
+            self,
+            show_log_file_names: bool = False,
+            show_host: bool = False,
+            show_notifier_name: bool = True
+        ):
+        '''
+        Adds the footer of the message.
+
+        Args:
+            show_log_file_names (bool): Whether to show the log file names.
+            show_host (bool): Whether to show the host name.
+            show_notifier_name (bool): Whether to show the notifier name.
+
+        Returns:
+            MessageBuilder: The updated message builder.
+        '''
+        footer_parts = []
+
+        if show_log_file_names:
+            add_log_file_name_to_footer_parts = lambda log_file_path: footer_parts.append(self.apply_code(log_file_path)) if log_file_path else None
+            add_log_file_name_to_footer_parts(self.stored_log_info.log_file)
+            add_log_file_name_to_footer_parts(self.stored_log_info.json_log_file)
+
+        host_name = os.uname().nodename
+
+        if self.notifier_name:
+            styled_notifier_name = (
+                f"{Helper.Emoji.NOTIFIER.unicode}  {self.apply_italic(self.notifier_name)}"
+                if show_notifier_name else ""
+            )
+            if show_host:
+                host_info = f"{Helper.Emoji.HOST.unicode}  {host_name}"
+                footer_parts.append(f"{host_info}   |   {styled_notifier_name}" if styled_notifier_name else host_info)
+            else:
+                footer_parts.append(styled_notifier_name)
+        elif show_host:
+            footer_parts.append(f"{Helper.Emoji.HOST.unicode}  {host_name}")
+
+        self.message_parts.append(
+            ("\n".join(footer_parts)).strip() if footer_parts else ""
+        )
+        return self
+
+    def build(self) -> str:
+        '''
+        Builds the message.
+
+        Returns:
+            str: The built message.
+        '''
+        return (
+            "\n".join(self.message_parts)
+        ).strip()
+
+# ░░░░░░░░░░░░░░░░░░░░░▓▓▓░░░░░░░░░░░░░░░░░░░░░░
+# ░░                                          ░░
+# ░░                                          ░░
+# ░░                  MAIN                    ░░
+# ░░                                          ░░
+# ░░                                          ░░
+# ░░░░░░░░░░░░░░░░░░░░░▓▓▓░░░░░░░░░░░░░░░░░░░░░░
 
 if __name__ == "__main__":
     process_arguments()
