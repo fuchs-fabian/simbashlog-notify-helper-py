@@ -4,7 +4,7 @@ from setuptools import setup
 
 setup(
     name='simbashlog-notify-helper',
-    version='1.6.0',
+    version='1.6.1',
     description='Helper for simbashlog notifiers',
     long_description='Import this Python package into your simbashlog notifier so that you only have to worry about the actual logic and no longer have to accept the arguments and co.',
     author='Fabian Fuchs',
