@@ -872,7 +872,6 @@ class MessageBuilder:
     A class to build a message for a `simbashlog`-notifier.
 
     Attributes:
-
         stored_log_info (StoredLogInfo):
             The stored log information.
         notifier_name (str):
@@ -938,7 +937,6 @@ class MessageBuilder:
                 header_parts.append(f"{severity.unicode}  {severity.rfc_5424_severity}: {self.stored_log_info.message}")
             except Exception as e:
                 print(f"An error occurred while trying to get the severity by code: '{e}'")
-                sys.exit(1)
         elif self.stored_log_info.message:
             header_parts.append(self.stored_log_info.message)
         elif self.stored_log_info.log_level:
@@ -971,7 +969,12 @@ class MessageBuilder:
         Returns:
             MessageBuilder: The updated message builder.
         '''
-        if self.stored_log_info.data_df is None:
+        if self.stored_log_info.data_df is None and (
+            show_log_file_result or
+            show_log_file_content or
+            show_summary_for_log_file or
+            show_summary_for_pid
+            ):
             self.message_parts.append(self.apply_paragraph("No log data available"))
             return self
 
