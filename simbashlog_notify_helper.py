@@ -77,56 +77,56 @@ class Severity(Enum):
         "System is unusable",
         "🚑",
         "\U0001F691"
-        )
+    )
     ALERT = (
         1,
         "Alert",
         "Action must be taken immediately",
         "🚨",
         "\U0001F6A8"
-        )
+    )
     CRIT = (
         2,
         "Critical",
         "Critical conditions",
         "🔥",
         "\U0001F525"
-        )
+    )
     ERROR = (
         3,
         "Error",
         "Error conditions",
         "❗",
         "\u2757"
-        )
+    )
     WARN = (
         4,
         "Warning",
         "Warning conditions",
         "⚠️",
         "\u26A0\uFE0F"
-        )
+    )
     NOTICE = (
         5,
         "Notice",
         "Normal but significant condition",
         "📝",
         "\U0001F4DD"
-        )
+    )
     INFO = (
         6,
         "Informational",
         "Informational messages",
         "ℹ️",
         "\u2139\uFE0F"
-        )
+    )
     DEBUG = (
         7,
         "Debug",
         "Debug-level messages",
         "🔍",
         "\U0001F50D"
-        )
+    )
 
     def __init__(
             self,
@@ -135,7 +135,7 @@ class Severity(Enum):
             rfc_5424_description: str,
             emoji: str,
             unicode: str
-            ):
+        ):
         self._rfc_5424_numerical_code = rfc_5424_numerical_code
         self._rfc_5424_severity = rfc_5424_severity
         self._rfc_5424_description = rfc_5424_description
@@ -816,27 +816,27 @@ class Helper:
         NOTIFIER = (
             "🤖",
             "\U0001F916"
-            )
+        )
         HOST = (
             "🌐",
             "\U0001F310"
-            )
+        )
         LOG_FILE = (
             "📄",
             "\U0001F4C4"
-            )
+        )
         PID = (
             "🆔",
             "\U0001F194"
-            )
+        )
         SUMMARY = (
             "📈",
             "\U0001F4C8"
-            )
+        )
         RESULT = (
             "🎯",
             "\U0001F3AF"
-            )
+        )
 
         def __init__(self, emoji, unicode):
             self._emoji = emoji
@@ -895,16 +895,16 @@ class MessageBuilder:
         >>> message_builder.add_header(show_pid=True).add_body(show_log_file_result=True, show_log_file_content=True).add_footer(show_log_file_names=True, show_host=True, show_notifier_name=True).build()
     '''
     def __init__(
-        self, 
-        stored_log_info: StoredLogInfo,
-        notifier_name: str,
-        apply_heading = lambda content: f"{content}",
-        apply_subheading = lambda content: f"\n{content}\n",
-        apply_paragraph = lambda content: f"\n{content}\n",
-        apply_code = lambda content: f"\n{content}\n",
-        apply_bold = lambda content: f"{content}",
-        apply_italic = lambda content: f"{content}"
-    ):
+            self, 
+            stored_log_info: StoredLogInfo,
+            notifier_name: str,
+            apply_heading = lambda content: f"{content}",
+            apply_subheading = lambda content: f"\n{content}\n",
+            apply_paragraph = lambda content: f"\n{content}\n",
+            apply_code = lambda content: f"\n{content}\n",
+            apply_bold = lambda content: f"{content}",
+            apply_italic = lambda content: f"{content}"
+        ):
         self.stored_log_info = stored_log_info
         self.notifier_name = notifier_name
         self.apply_heading = apply_heading
@@ -919,7 +919,7 @@ class MessageBuilder:
     def add_header(
             self,
             show_pid: bool = False
-            ):
+        ):
         '''
         Adds the header of the message.
 
@@ -956,7 +956,7 @@ class MessageBuilder:
             show_log_file_content: bool = False,
             show_summary_for_pid: bool = False,
             show_summary_for_log_file: bool = False
-            ):
+        ):
         '''
         Adds the body of the message.
 
@@ -970,10 +970,10 @@ class MessageBuilder:
             MessageBuilder: The updated message builder.
         '''
         if self.stored_log_info.data_df is None and (
-            show_log_file_result or
-            show_log_file_content or
-            show_summary_for_log_file or
-            show_summary_for_pid
+                show_log_file_result or
+                show_log_file_content or
+                show_summary_for_log_file or
+                show_summary_for_pid
             ):
             self.message_parts.append(self.apply_paragraph("No log data available"))
             return self
@@ -1063,7 +1063,7 @@ class MessageBuilder:
             show_log_file_names: bool = False,
             show_host: bool = False,
             show_notifier_name: bool = True
-            ):
+        ):
         '''
         Adds the footer of the message.
 
