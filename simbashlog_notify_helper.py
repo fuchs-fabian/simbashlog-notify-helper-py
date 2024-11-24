@@ -983,13 +983,14 @@ class MessageBuilder:
         if show_log_file_result:
             try:
                 number_of_unique_pids = self.stored_log_info.get_number_of_unique_pids()
-                number_of_log_entries_for_current_severity = self.stored_log_info.get_number_of_log_entries_by_severity(Severity.get_by_code(self.stored_log_info.log_level))
-                max_severity = self.stored_log_info.get_highest_severity()
 
-                if max_severity:
-                    count_display = f"  {number_of_log_entries_for_current_severity}x:" if number_of_unique_pids == 1 else ""
+                highest_severity = self.stored_log_info.get_highest_severity()
+                number_of_log_entries_for_highest_severity = self.stored_log_info.get_number_of_log_entries_by_severity(highest_severity)
+
+                if highest_severity:
+                    count_display_for_highest_severity = f"  {number_of_log_entries_for_highest_severity}x:" if number_of_unique_pids == 1 else ""
                     body_parts.append(
-                        self.apply_subheading(f"{Helper.Emoji.RESULT.unicode}{count_display}  {max_severity.unicode}  {max_severity.rfc_5424_severity.upper()}")
+                        self.apply_subheading(f"{Helper.Emoji.RESULT.unicode}{count_display_for_highest_severity}  {highest_severity.unicode}  {highest_severity.rfc_5424_severity.upper()}")
                         )
             except Exception as e:
                 print(f"An error occurred while trying to determine the log file result: '{e}'")
